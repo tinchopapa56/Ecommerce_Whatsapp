@@ -4,6 +4,9 @@ import {Product} from "./types"
 import Papa from "papaparse"
 import { resolve } from "path"
 import { rejects } from "assert"
+import dotenv from "dotenv";
+import process from "process"
+
 
 export default {
     list: async (): Promise<Product[]> => {
