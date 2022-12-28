@@ -76,19 +76,20 @@ export const getStaticProps: GetStaticProps = async() =>{
   const products = await api.list();
 
   return {
+    revalidate: 10,
     props: {
       products,
     },
-    // revalidate: 10
+    
   };
 };
 
 export default IndexRoute;
 
 
-      // id: string;
-      // title: string;
-      // category: string;
-      // description: string;
-      // image: string;
-      // price: string;
+// id: string;
+// title: string;
+// category: string;
+// description: string;
+// image: string;
+// price: string;
