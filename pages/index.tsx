@@ -45,7 +45,8 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                   onClick={()=> setSelectedImage(product.image)}
                   as={motion.img}
                   layoutId={product.image}
-                  alt={product.title} 
+                  alt={product.title}
+                  h={180} 
                   maxHeight={180}
                   objectFit="cover" 
                   borderRadius="md" 
