@@ -3,7 +3,8 @@ import { filterProps } from 'framer-motion';
 import { GetStaticProps } from 'next';
 import api from '../product/api';
 import {Product} from "../product/types";
-import {Grid, Box, Text, Stack, Button, Link, Flex} from "@chakra-ui/react"
+import {Grid, Box, Text, Stack, Button, Link, Flex, Image} from "@chakra-ui/react"
+import {motion, AnimatePresence, AnimateSharedLayout} from "framer-motion"
 import DrawerR from '../product/DrawerR';
 
 
@@ -19,6 +20,9 @@ function parseCurrency (value: number): string {
 
 const IndexRoute: React.FC<Props> = ({products}) => {
   const [cart, setCart] = useState<Product[]>([])
+  const [selectedImage, setSelectedImage] = useState<string>("")
+
+  //WP connection
   const text = useMemo(
     () =>
      cart
@@ -32,42 +36,72 @@ const IndexRoute: React.FC<Props> = ({products}) => {
   }
   
   return ( 
-    <Stack>
-      <Grid gridGap={6} templateColumns="repeat(auto-fill, minmax(240px, 1fr))">
-        {products.map(product => (
-          <Stack spacing={3} borderRadius="md" p={4} bg="gray.100" key={product.id}>
-            <Stack spacing={1}>
-              <Text>{product.title}</Text>
-              <Text color="grenn.500" fontSize="sm" fontWeight="500">{parseCurrency(product.price)}</Text>
+      <Stack>
+        <Grid gridGap={6} templateColumns="repeat(auto-fill, minmax(240px, 1fr))">
+          {products.map(product => (
+            <Stack spacing={3} borderRadius="md" p={4} bg="gray.100" key={product.id}>
+              <Stack spacing={1}>
+                <Image 
+                  onClick={()=> setSelectedImage(product.image)}
+                  as={motion.img}
+                  layoutId={product.image}
+                  alt={product.title} 
+                  maxHeight={180}
+                  objectFit="cover" 
+                  borderRadius="md" 
+                  src={product.image} 
+                />
+                <Text>{product.title}</Text>
+                <Text color="grenn.500" fontSize="sm" fontWeight="500">{parseCurrency(product.price)}</Text>
+              </Stack>
+              <Button 
+                colorScheme="primary"
+                variant="outline"
+                size="sm"
+                onClick={() => handleAddToCart(product) }
+                >
+                Agregar a carrito
+              </Button>
             </Stack>
+          ))}
+        </Grid>
+        {cart.length &&
+          <Flex p={4} gap={4} justify="center" align="center" direction="column">
             <Button 
-              colorScheme="primary"
-              variant="outline"
-              size="sm"
-              onClick={() => handleAddToCart(product) }
-              >
-              Agregar a carrito
+              as={Link} 
+              href={`https://wa.me/5491183920394?text=${encodeURIComponent(text)}`} 
+              isExternal
+              colorScheme="whatsapp"
+              // width="fit-content"
+              w="300px"
+              // position="sticky"
+            >
+              Completar pedido WP ({cart.length} productos)
             </Button>
-          </Stack>
-        ))}
-      </Grid>
-      {cart.length &&
-        <Flex p={4} gap={4} justify="center" align="center" direction="column">
-          <Button 
-            as={Link} 
-            href={`https://wa.me/5491183920394?text=${encodeURIComponent(text)}`} 
-            isExternal
-            colorScheme="whatsapp"
-            // width="fit-content"
-            w="300px"
-            // position="sticky"
+            <DrawerR cart={cart} />
+          </Flex>
+        }
+        <AnimatePresence>
+        {selectedImage && (
+          <Flex 
+            key="backdrop" 
+            align="center" 
+            as={motion.div} 
+            bg="rgba(0,0,0,0.5)" 
+            justify="center"
+            layoutId={selectedImage}
+            position="fixed" 
+            top={0} 
+            left={0}
+            h="100%" 
+            w="100%"
+            onClick={() => setSelectedImage("")} 
           >
-            Completar pedido WP ({cart.length} productos)
-          </Button>
-          <DrawerR cart={cart} />
-        </Flex>
-       }
-    </Stack>
+            <Image key="image" src={selectedImage} />
+          </Flex>
+        )}
+      </AnimatePresence>
+      </Stack>
   );
 }
 
@@ -76,7 +110,7 @@ export const getStaticProps: GetStaticProps = async() =>{
   const products = await api.list();
 
   return {
-    revalidate: 10,
+    revalidate: 5,
     props: {
       products,
     },
@@ -85,11 +119,3 @@ export const getStaticProps: GetStaticProps = async() =>{
 };
 
 export default IndexRoute;
-
-
-// id: string;
-// title: string;
-// category: string;
-// description: string;
-// image: string;
-// price: string;
